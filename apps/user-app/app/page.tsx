@@ -1,9 +1,9 @@
-import { Button } from "@repo/ui/button";
+import {Button} from "@repo/ui/components/ui/button"
 
 export default function Home() {
   return (
     <div className="text-4xl self-center">
-      <Button appName="user-app" >Helllo from cloud</Button>
+      <Button >Helllo from cloud</Button>
     </div>
   );
 }
