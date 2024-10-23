@@ -1,6 +1,23 @@
-import prisma from '@repo/payTN-db/client'
+import prisma from '@repo/db/client'
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcrypt'
+
+type Credentials = {
+    // phone: {
+    //     label: string,
+    //     type: string,
+    //     placeholder: string
+    // },
+    // password: {
+    //     password: {
+    //         label: string,
+    //         type: string
+    //     }
+    // }
+
+    phone: string,
+    password: string
+}
 
 export const authProviders = {
     providers: [
@@ -8,9 +25,12 @@ export const authProviders = {
             name: "Credentials",
             credentials: {
                 phone: { label: "Phone Number", type: "number", placeholder: "0000000000" },
-                password: { label: "Password", type: "password", placeholder: "Enter the password" }
+                password: { label: "Password", type: "password" }
             },
-            async authorize(credentials: any) {
+            async authorize(credentials, req) {
+                if (!credentials) {
+                    return null
+                }
                 const hashedPass = await bcrypt.hash(credentials.password, 10)
 
                 const existingUser = await prisma.user.findFirst({
@@ -42,18 +62,34 @@ export const authProviders = {
                         }
                     })
 
-                    if (newUser) {
-                        return {
-                            id: newUser.id.toString(),
-                            email: newUser.email,
-                            name: newUser.name
-                        }
+                    if (!newUser) {
+                        return null
+                    }
+
+                    return {
+                        id: newUser.id.toString(),
+                        email: newUser.email,
+                        name: newUser.name
                     }
                 } catch (error) {
                     console.log(error)
                 }
 
-                return null;
+                //WIP: bug here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // return newUser.name;
+                const res = await fetch("/your/endpoint", {
+                    method: 'POST',
+                    body: JSON.stringify(credentials),
+                    headers: { "Content-Type": "application/json" }
+                  })
+                  const user = await res.json()
+            
+                  // If no error and we have user data, return it
+                  if (res.ok && user) {
+                    return user
+                  }
+                  // Return null if user data could not be retrieved
+                  return null
             }
         })
     ],
