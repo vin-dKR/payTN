@@ -7,7 +7,7 @@ const numberSchema = z.string().length(10, { message: "Must be 10 character numb
 const passwordSchema = z.string().min(8, { message: "Must be 8 or more character long" })
 
 export const authOptions = {
-  providers: [
+  providers: [ 
     CredentialsProvider({
       name: "Credentials",
       credentials: {
